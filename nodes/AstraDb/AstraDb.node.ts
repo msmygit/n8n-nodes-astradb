@@ -1,7 +1,7 @@
 import type { INodeTypeBaseDescription, IVersionedNodeType } from 'n8n-workflow';
 import { VersionedNodeType } from 'n8n-workflow';
 
-import { AstraDbV1 } from './v1/AstraDbV1.node.js';
+import { AstraDbV1 } from './v1/AstraDbV1.node';
 
 export class AstraDb extends VersionedNodeType {
 	constructor() {

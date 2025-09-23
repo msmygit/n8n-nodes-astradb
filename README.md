@@ -413,7 +413,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Community Support
 - [GitHub Issues](https://github.com/msmygit/n8n-nodes-astradb/issues)
 - [n8n Community Forum](https://community.n8n.io/)
-- [DataStax Community](http://dtsx.io/discord)
+- [DataStax Community](https://dtsx.io/discord)
 
 ### Professional Support
 - [DataStax Support](https://www.datastax.com/support)
@@ -421,8 +421,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🏆 Acknowledgments
 
-- DataStax for providing Astra DB
-- n8n team for the excellent platform
+- DataStax for providing Astra DB, an excellent knowledge layer
+- n8n team for the platform
 - Community contributors and testers
 
 ## 📈 Roadmap
