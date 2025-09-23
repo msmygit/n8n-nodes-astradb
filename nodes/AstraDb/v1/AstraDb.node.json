@@ -1,0 +1,130 @@
+{
+	"node": "n8n-nodes-astradb",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["AI", "Data & Storage"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.datastax.com/en/astra-db-serverless/getting-started/quickstart.html"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/msmygit/n8n-nodes-astradb"
+			}
+		],
+		"support": [
+			{
+				"url": "https://github.com/msmygit/n8n-nodes-astradb/issues"
+			}
+		]
+	},
+	"subtitle": "={{ $parameter['operation'] + ': ' + $parameter['collection'] }}",
+	"description": "Interact with DataStax Astra DB collections for document operations and vector search",
+	"version": 1,
+	"defaults": {
+		"name": "Astra DB"
+	},
+	"inputs": ["main"],
+	"outputs": ["main"],
+	"credentials": [
+		{
+			"name": "astraDbApi",
+			"required": true
+		}
+	],
+	"properties": [
+		{
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"options": [
+				{
+					"name": "Insert One",
+					"value": "insertOne",
+					"description": "Insert a single document",
+					"action": "Insert one document"
+				},
+				{
+					"name": "Insert Many",
+					"value": "insertMany",
+					"description": "Insert multiple documents",
+					"action": "Insert many documents"
+				},
+				{
+					"name": "Find Many",
+					"value": "findMany",
+					"description": "Find multiple documents",
+					"action": "Find many documents"
+				},
+				{
+					"name": "Find One",
+					"value": "findOne",
+					"description": "Find a single document",
+					"action": "Find one document"
+				},
+				{
+					"name": "Update Many",
+					"value": "updateMany",
+					"description": "Update multiple documents",
+					"action": "Update many documents"
+				},
+				{
+					"name": "Delete",
+					"value": "delete",
+					"description": "Delete documents",
+					"action": "Delete documents"
+				},
+				{
+					"name": "Find and Update",
+					"value": "findAndUpdate",
+					"description": "Find and update a single document",
+					"action": "Find and update document"
+				},
+				{
+					"name": "Find and Replace",
+					"value": "findAndReplace",
+					"description": "Find and replace a single document",
+					"action": "Find and replace document"
+				},
+				{
+					"name": "Find and Delete",
+					"value": "findAndDelete",
+					"description": "Find and delete a single document",
+					"action": "Find and delete document"
+				},
+				{
+					"name": "Estimated Document Count",
+					"value": "estimatedDocumentCount",
+					"description": "Get estimated document count",
+					"action": "Get document count"
+				},
+				{
+					"name": "Vector Search",
+					"value": "vectorSearch",
+					"description": "Perform vector similarity search",
+					"action": "Vector search"
+				}
+			],
+			"default": "findMany"
+		},
+		{
+			"displayName": "Keyspace",
+			"name": "keyspace",
+			"type": "string",
+			"default": "",
+			"required": true,
+			"description": "The keyspace name"
+		},
+		{
+			"displayName": "Collection",
+			"name": "collection",
+			"type": "string",
+			"default": "",
+			"required": true,
+			"description": "The collection name"
+		}
+	]
+}
