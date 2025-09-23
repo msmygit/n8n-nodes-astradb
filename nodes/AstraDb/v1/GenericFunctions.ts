@@ -1,7 +1,20 @@
 import type { IDataObject, INode } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { DataAPIClient } from '@datastax/astra-db-ts';
+import type { Collection } from '@datastax/astra-db-ts';
 import type { IAstraDbCredentials, IAstraOptions, IAstraResponse } from './types';
+
+// Interface for Astra DB result objects
+interface IAstraResult {
+	insertedId?: string;
+	insertedIds?: string[];
+	insertedCount?: number;
+	matchedCount?: number;
+	modifiedCount?: number;
+	deletedCount?: number;
+	acknowledged?: boolean;
+	[key: string]: unknown;
+}
 
 /**
  * Raw credential validation function (no node dependency)
@@ -67,7 +80,7 @@ export function validateKeyspaceCollectionName(node: INode, name: string, type: 
 /**
  * Validate query objects
  */
-export function validateQuery(node: INode, query: any, fieldName: string): { isValid: boolean; errors: string[] } {
+export function validateQuery(node: INode, query: IDataObject, fieldName: string): { isValid: boolean; errors: string[] } {
 	const errors: string[] = [];
 	
 	if (query === null || query === undefined) {
@@ -142,7 +155,7 @@ export function parseAstraOptions(node: INode, options: IDataObject): IAstraOpti
  */
 export async function insertOneDocument(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	document: IDataObject
 ): Promise<IAstraResponse> {
 	try {
@@ -158,7 +171,7 @@ export async function insertOneDocument(
  */
 export async function insertManyDocuments(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	documents: IDataObject[],
 	options: IAstraOptions = {}
 ): Promise<IAstraResponse> {
@@ -175,7 +188,7 @@ export async function insertManyDocuments(
  */
 export async function updateDocuments(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject,
 	update: IDataObject,
 	options: IAstraOptions = {}
@@ -193,7 +206,7 @@ export async function updateDocuments(
  */
 export async function deleteDocuments(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject
 ): Promise<IAstraResponse> {
 	try {
@@ -209,7 +222,7 @@ export async function deleteDocuments(
  */
 export async function findDocuments(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject,
 	options: IAstraOptions = {}
 ): Promise<IAstraResponse> {
@@ -226,7 +239,7 @@ export async function findDocuments(
  */
 export async function findOneDocument(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject,
 	options: IAstraOptions = {}
 ): Promise<IAstraResponse> {
@@ -243,7 +256,7 @@ export async function findOneDocument(
  */
 export async function findAndUpdateDocument(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject,
 	update: IDataObject,
 	options: IAstraOptions = {}
@@ -261,7 +274,7 @@ export async function findAndUpdateDocument(
  */
 export async function findAndReplaceDocument(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject,
 	replacement: IDataObject,
 	options: IAstraOptions = {}
@@ -279,7 +292,7 @@ export async function findAndReplaceDocument(
  */
 export async function findAndDeleteDocument(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	filter: IDataObject,
 	options: IAstraOptions = {}
 ): Promise<IAstraResponse> {
@@ -296,7 +309,7 @@ export async function findAndDeleteDocument(
  */
 export async function estimatedDocumentCount(
 	node: INode,
-	collection: any,
+	collection: Collection,
 	options: IAstraOptions = {}
 ): Promise<IAstraResponse> {
 	try {
@@ -310,46 +323,46 @@ export async function estimatedDocumentCount(
 /**
  * Format Astra response
  */
-export function formatAstraResponse(result: any, operation: string): IAstraResponse {
+export function formatAstraResponse(result: unknown, operation: string): IAstraResponse {
 	const response: IAstraResponse = {
 		operation,
 		success: true,
-		data: result,
+		data: result as IDataObject,
 	};
 
 	// Add operation-specific fields
 	switch (operation) {
 		case 'insertOne':
-			response.insertedId = result.insertedId;
-			response.acknowledged = result.acknowledged;
+			response.insertedId = (result as IAstraResult).insertedId as string;
+			response.acknowledged = (result as IAstraResult).acknowledged as boolean;
 			break;
 		case 'insertMany':
-			response.insertedIds = result.insertedIds;
-			response.insertedCount = result.insertedCount;
-			response.acknowledged = result.acknowledged;
+			response.insertedIds = (result as IAstraResult).insertedIds as string[];
+			response.insertedCount = (result as IAstraResult).insertedCount as number;
+			response.acknowledged = (result as IAstraResult).acknowledged as boolean;
 			break;
 		case 'updateMany':
-			response.matchedCount = result.matchedCount;
-			response.modifiedCount = result.modifiedCount;
-			response.acknowledged = result.acknowledged;
+			response.matchedCount = (result as IAstraResult).matchedCount as number;
+			response.modifiedCount = (result as IAstraResult).modifiedCount as number;
+			response.acknowledged = (result as IAstraResult).acknowledged as boolean;
 			break;
 		case 'delete':
-			response.deletedCount = result.deletedCount;
-			response.acknowledged = result.acknowledged;
+			response.deletedCount = (result as IAstraResult).deletedCount as number;
+			response.acknowledged = (result as IAstraResult).acknowledged as boolean;
 			break;
 		case 'findMany':
-			response.data = result;
+			response.data = result as IDataObject;
 			break;
 		case 'findOne':
-			response.document = result;
+			response.document = result as IDataObject;
 			break;
 		case 'findAndUpdate':
 		case 'findAndReplace':
 		case 'findAndDelete':
-			response.document = result;
+			response.document = result as IDataObject;
 			break;
 		case 'estimatedDocumentCount':
-			response.count = result;
+			response.count = result as number;
 			break;
 	}
 
@@ -360,7 +373,7 @@ export function formatAstraResponse(result: any, operation: string): IAstraRespo
 /**
  * Sanitize input data to ensure it's safe for n8n
  */
-export function sanitizeInput(data: any): IDataObject {
+export function sanitizeInput(data: IDataObject): IDataObject {
 	if (data === null || data === undefined) {
 		return {};
 	}

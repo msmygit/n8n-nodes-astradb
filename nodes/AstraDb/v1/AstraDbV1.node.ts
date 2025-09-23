@@ -11,6 +11,7 @@ import type {
 	JsonObject,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import type { Collection } from '@datastax/astra-db-ts';
 
 import {
 	connectAstraClient,
@@ -119,7 +120,7 @@ export class AstraDbV1 implements INodeType {
 			// Handle different operations
 			for (let i = 0; i < itemsLength; i++) {
 				try {
-					let result: any;
+					let result: IDataObject;
 
 					switch (operation) {
 						case 'insertOne':
@@ -169,7 +170,7 @@ export class AstraDbV1 implements INodeType {
 							}
 						} else {
 							returnData.push({
-								json: sanitizeInput(documents),
+								json: sanitizeInput(documents as IDataObject),
 								pairedItem: fallbackPairedItems[i],
 							});
 						}
@@ -205,12 +206,12 @@ export class AstraDbV1 implements INodeType {
 		return [returnData];
 	}
 
-	private static async handleInsertOne(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleInsertOne(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const document = JSON.parse(executeFunctions.getNodeParameter('document', itemIndex) as string);
 		return await insertOneDocument(executeFunctions.getNode(), collectionObj, document);
 	}
 
-	private static async handleInsertMany(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleInsertMany(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const documents = JSON.parse(executeFunctions.getNodeParameter('documents', itemIndex) as string);
 		const options = parseAstraOptions(
 			executeFunctions.getNode(),
@@ -219,7 +220,7 @@ export class AstraDbV1 implements INodeType {
 		return await insertManyDocuments(executeFunctions.getNode(), collectionObj, documents, options);
 	}
 
-	private static async handleFindMany(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleFindMany(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 		const options = parseAstraOptions(
 			executeFunctions.getNode(),
@@ -234,7 +235,7 @@ export class AstraDbV1 implements INodeType {
 		return await findDocuments(executeFunctions.getNode(), collectionObj, filter, options);
 	}
 
-	private static async handleFindOne(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleFindOne(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 		const options = parseAstraOptions(
 			executeFunctions.getNode(),
@@ -250,7 +251,7 @@ export class AstraDbV1 implements INodeType {
 		return result || {};
 	}
 
-	private static async handleUpdateMany(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleUpdateMany(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 		const update = JSON.parse(executeFunctions.getNodeParameter('update', itemIndex) as string);
 		const options = parseAstraOptions(
@@ -271,7 +272,7 @@ export class AstraDbV1 implements INodeType {
 		return await updateDocuments(executeFunctions.getNode(), collectionObj, filter, update, options);
 	}
 
-	private static async handleDelete(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleDelete(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 
 		const validation = validateQuery(executeFunctions.getNode(), filter, 'filter');
@@ -282,7 +283,7 @@ export class AstraDbV1 implements INodeType {
 		return await deleteDocuments(executeFunctions.getNode(), collectionObj, filter);
 	}
 
-	private static async handleFindAndUpdate(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleFindAndUpdate(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 		const update = JSON.parse(executeFunctions.getNodeParameter('update', itemIndex) as string);
 		const options = parseAstraOptions(
@@ -303,7 +304,7 @@ export class AstraDbV1 implements INodeType {
 		return await findAndUpdateDocument(executeFunctions.getNode(), collectionObj, filter, update, options);
 	}
 
-	private static async handleFindAndReplace(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleFindAndReplace(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 		const replacement = JSON.parse(executeFunctions.getNodeParameter('replacement', itemIndex) as string);
 		const options = parseAstraOptions(
@@ -324,7 +325,7 @@ export class AstraDbV1 implements INodeType {
 		return await findAndReplaceDocument(executeFunctions.getNode(), collectionObj, filter, replacement, options);
 	}
 
-	private static async handleFindAndDelete(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleFindAndDelete(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const filter = JSON.parse(executeFunctions.getNodeParameter('filter', itemIndex) as string);
 		const options = parseAstraOptions(
 			executeFunctions.getNode(),
@@ -339,7 +340,7 @@ export class AstraDbV1 implements INodeType {
 		return await findAndDeleteDocument(executeFunctions.getNode(), collectionObj, filter, options);
 	}
 
-	private static async handleEstimatedDocumentCount(executeFunctions: IExecuteFunctions, collectionObj: any, itemIndex: number): Promise<any> {
+	private static async handleEstimatedDocumentCount(executeFunctions: IExecuteFunctions, collectionObj: Collection, itemIndex: number): Promise<IDataObject> {
 		const options = parseAstraOptions(
 			executeFunctions.getNode(),
 			executeFunctions.getNodeParameter('options', itemIndex, {})

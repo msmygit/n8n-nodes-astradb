@@ -100,12 +100,6 @@
 					"value": "estimatedDocumentCount",
 					"description": "Get estimated document count",
 					"action": "Get document count"
-				},
-				{
-					"name": "Vector Search",
-					"value": "vectorSearch",
-					"description": "Perform vector similarity search",
-					"action": "Vector search"
 				}
 			],
 			"default": "findMany"
