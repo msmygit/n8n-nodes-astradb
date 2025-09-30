@@ -31,7 +31,7 @@ npm install n8n-nodes-astradb
 3. Enter `n8n-nodes-astradb`
 4. Click **Install**
 
-### Method 3: Manual Installation
+### Method 3: [Manual Installation](https://docs.n8n.io/integrations/community-nodes/installation)
 1. Download the latest release from [GitHub](https://github.com/msmygit/n8n-nodes-astradb/releases)
 2. Extract to your n8n community nodes directory
 3. Run `npm install` in the extracted directory
